@@ -1,1 +1,17 @@
-dslkjsfljkfdk
+Purpose of each file:
+
+Testing.py - have tests setup for my code. The tests won't just test the final restul. They will test each step along the way to esnure that data is flowing properly
+              Here are the tests:
+                1. ensure all data has been parsed and entered correctly
+                2. Does the neural network reduce the number of pausible answers by atleast 30%?
+                3. When any of the suggested weights are adjusted, does that fix the broken system. (Results of this will have to be interpretted for the paper as that will be the                      proof of concept)
+Main.py - Main method will just be used to run everything in tangent. Run each succesive test when necesary after a poriton of the neural network has run.
+
+          Simple structure:
+            1. Initialize a new game/reaction into a new list that contains each aspect of the input.
+            2. test to make sure the data has been parsed correctly
+            3. feed data into neural network (the neural network will be the bulk of the program)
+            4. Tes tthe results of the neural network to ensure that atleast 30% of the initial "problem" nodes have been removed form the result
+            5. Check to see if when any of the returned problem nodes are adjusted, it fixes the experimental reaction/game. 
+
+
