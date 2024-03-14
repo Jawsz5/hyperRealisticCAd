@@ -20,15 +20,16 @@ LimitFinder.py -
 
           Structure:
             1. Parameters: just take in the list which contains all of the important information of the dataset
-            2. Generate a neural network: 
+            2. Generate a resevoir: 
                 a) the number of initial nodes will be the number of elements in the list.
                 b) Initialize those nodes with values the corresponding vlaues in the list passed into the network
-                C) generate intial weights that represent all of the possible reactions/interactions between palyers/molecules. The weights will be calculated by the reaction equations
+                C) generate intial weights that represent all of the possible reactions/interactions between palyers/molecules. The weights will be the reaction equation outputs
             3. Operation of the neural network:
-                a) understand the "good" reactions/games
+                a) Does not have to understand the "good" reactions/games
                 b) with the "bad" game/reaction, find all of the nodes connected to the factor that has been changed (Ex: nodes connected to shooting angle, coach, reaction between molecule A and B)
-                c) 
-              
-
-
+                c) input a "bad" value to the corresponding nodes of the "good" games/reactions to break them
+                d) Once the "good" games/reactions have been broken, literally test all possible ombinations that coudl fix them. 
+                e) return all intersections between the results of the nodes that can be adjusted to fix the "good" games.
+                f) input those nodes back into the initial "bad" game/reaction to see if that fixes the system. 
+      
 
