@@ -1,1 +1,1 @@
-
+#For this, I don't actually have to build an engine. I can jsut call the combustion chamber class from the other repsitory that I found. Then, I cna just create like 10 chambers with slightly different properties. I will compile the reuslts into a table. The 11th chamber could be a bad chamber that fails a test.
