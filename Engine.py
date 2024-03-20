@@ -7,6 +7,8 @@ Combustion reaction thermodynamical properties.
 Authored by: MRodriguez, 2020-2022
 
 """
+
+## when importing from pyturb remember to include which file in pyturb I'm importing from
 import numpy as np
 import warnings
 from pyturb.gas_models import ThermoProperties
@@ -14,8 +16,9 @@ from pyturb.gas_models import PerfectIdealGas
 from pyturb.gas_models import SemiperfectIdealGas
 from pyturb.gas_models import GasMixture
 from pyturb.utils import units
+from pyturb.combustion import Combustion
 
-
+# utilize the notebook folder for examples and readme
 oxidizers = ['Air', 'O', 'O2', 'O3'] # Allowed oxidizers
 
 fuels = ['hydrocarbon',
