@@ -1,1 +1,35 @@
-#For this, I don't actually have to build an engine. I can jsut call the combustion chamber class from the other repsitory that I found. Then, I cna just create like 10 chambers with slightly different properties. I will compile the reuslts into a table. The 11th chamber could be a bad chamber that fails a test.
+"""
+combustion_thermodynamics:
+--------------------------
+
+Combustion reaction thermodynamical properties.
+
+Authored by: MRodriguez, 2020-2022
+
+"""
+import numpy as np
+import warnings
+from pyturb.gas_models import ThermoProperties
+from pyturb.gas_models import PerfectIdealGas
+from pyturb.gas_models import SemiperfectIdealGas
+from pyturb.gas_models import GasMixture
+from pyturb.utils import units
+
+
+oxidizers = ['Air', 'O', 'O2', 'O3'] # Allowed oxidizers
+
+fuels = ['hydrocarbon',
+         'CH4', 'C2H6', 'C3H8', 'C4H10', 'C5H12', 'C6H14', 'C7H16', 'C8H18',
+         'C9H19', 'C10H8',
+         'CH4O', 'CH3OCH3',
+         'C2H2',
+         'H2'] # Allowed fuels
+
+inert_gases = ['He', 'Ar', 'N2',
+               'CO2', 'CO',
+               'H2O']
+
+print(inert_gases[2])
+
+
+
