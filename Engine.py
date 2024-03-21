@@ -16,11 +16,17 @@ from pyturb.gas_models import PerfectIdealGas
 from pyturb.gas_models import SemiperfectIdealGas
 from pyturb.gas_models import GasMixture
 from pyturb.utils import units
-from pyturb.combustion import Combustion
+from pyturb.power_plant import Combustor
+from pyturb.power_plant import nozzle
+from pyturb.power_plant import control_volume
+from pyturb.power_plant import intake
 
+
+#semiperfect ideal gases
 # utilize the notebook folder for examples and readme
 oxidizers = ['Air', 'O', 'O2', 'O3'] # Allowed oxidizers
 
+#semi perfect ideal gases
 fuels = ['hydrocarbon',
          'CH4', 'C2H6', 'C3H8', 'C4H10', 'C5H12', 'C6H14', 'C7H16', 'C8H18',
          'C9H19', 'C10H8',
@@ -28,11 +34,16 @@ fuels = ['hydrocarbon',
          'C2H2',
          'H2'] # Allowed fuels
 
+#semiperfect ideal gases
 inert_gases = ['He', 'Ar', 'N2',
                'CO2', 'CO',
                'H2O']
 
-print(inert_gases[2])
+part1 = Combustor(fuels[1], 2);
+
+print(part1)
+
+
 
 
 
