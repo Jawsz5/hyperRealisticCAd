@@ -7,6 +7,7 @@ Combustion reaction thermodynamical properties.
 Authored by: MRodriguez, 2020-2022
 
 """
+## just found out that the facotry module isn't even finished. So, I'll swithc to chemical reactions, and I might just end up setting everythign up on my own without MRod's stuff
 
 ## when importing from pyturb remember to include which file in pyturb I'm importing from
 import numpy as np
