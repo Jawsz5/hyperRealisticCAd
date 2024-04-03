@@ -20,6 +20,7 @@ from pyturb.power_plant import Combustor
 from pyturb.power_plant import nozzle
 from pyturb.power_plant import control_volume
 from pyturb.power_plant import intake
+from pyturb.gas_models import gas_mixture
 
 
 #semiperfect ideal gases
@@ -39,9 +40,9 @@ inert_gases = ['He', 'Ar', 'N2',
                'CO2', 'CO',
                'H2O']
 
-part1 = Combustor(fuels[1], 2);
+part1 = gas_mixture.GasMixture();
 
-print(part1)
+part1.Ru()
 
 
 
