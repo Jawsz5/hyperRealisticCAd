@@ -1,51 +1,73 @@
-"""
-combustion_thermodynamics:
---------------------------
 
-Combustion reaction thermodynamical properties.
-
-Authored by: MRodriguez, 2020-2022
-
-"""
-## just found out that the facotry module isn't even finished. So, I'll swithc to chemical reactions, and I might just end up setting everythign up on my own without MRod's stuff
-
-## when importing from pyturb remember to include which file in pyturb I'm importing from
-import numpy as np
-import warnings
-from pyturb.gas_models import ThermoProperties
-from pyturb.gas_models import PerfectIdealGas
-from pyturb.gas_models import SemiperfectIdealGas
-from pyturb.gas_models import GasMixture
-from pyturb.utils import units
-from pyturb.power_plant import Combustor
-from pyturb.power_plant import nozzle
-from pyturb.power_plant import control_volume
-from pyturb.power_plant import intake
-from pyturb.gas_models import gas_mixture
+## modules needed
+import numpy as np #numeric python
+import matplotlib.pyplot as plt #graphing things with matlab
+import scipy.integrate as sci #integrating things
 
 
-#semiperfect ideal gases
-# utilize the notebook folder for examples and readme
-oxidizers = ['Air', 'O', 'O2', 'O3'] # Allowed oxidizers
+##Constant parameters
+mass = 640.0/100 ##Kg
 
-#semi perfect ideal gases
-fuels = ['hydrocarbon',
-         'CH4', 'C2H6', 'C3H8', 'C4H10', 'C5H12', 'C6H14', 'C7H16', 'C8H18',
-         'C9H19', 'C10H8',
-         'CH4O', 'CH3OCH3',
-         'C2H2',
-         'H2'] # Allowed fuels
 
-#semiperfect ideal gases
-inert_gases = ['He', 'Ar', 'N2',
-               'CO2', 'CO',
-               'H2O']
+#motion equations: F=ma = m*2nd derivative of altitude
+#z is the altitude above the surface
+# meters
+#zdot is the velcoity
+#z double dot is the acceleration
+#second order differential equation
+def Derivatives(state, t):
+    global mass
+    #state vector
+    z = state[0]
+    veloZ = state[1]
 
-part1 = gas_mixture.GasMixture();
+    #total forces: gravity, aerodynamics, thrust
+    gravity = -9.807 * mass
+    aero = 0.0 #for now
+    thrust = 0.0 #for now
+    forces = gravity + aero + thrust
 
-part1.Ru()
+    #zdot - kinematic relationship
+    zdot = veloZ
+
+    #compute acceleration
+    zddot = forces/mass
+
+    #compute the state dot vector
+    stateDot = np.asarray([zdot,zddot])
 
 
 
+    return stateDot
+
+#### MAIN SCRIPT
+
+###initial conditions
+tZ0 = 0.0
+veloZ0 = 164.0 #m/s
+initialState = np.array([tZ0, veloZ0])
+
+#Time window
+tup = np.linspace(0,35,1000)
+
+#numerical integration call
+stateup = sci.odeint(Derivatives, initialState, tup)
+
+zup = stateup[:, 0]
+veloZup = stateup[:, 1]
+
+##plot this thing
 
 
+##altitude
+plt.plot(tup, zup)
+plt.xlabel("Time (seconds)")
+plt.ylabel("Altitude (meters)")
+plt.grid();
+
+##velo
+plt.figure(); ##new graph
+plt.plot(tup, veloZup)
+plt.xlabel("Time (seconds)")
+plt.ylabel("Normal Speed (meters/Second)")
+plt.grid();
