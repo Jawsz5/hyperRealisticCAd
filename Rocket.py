@@ -37,6 +37,8 @@ def gravity(x, z):
 
 
 
+##After implementing thrust, create soemthing for size (mass) of the rocket, and for heat possibly
+
 class Rockets:
     global mass,rPlanet,mPlanet,G
 
