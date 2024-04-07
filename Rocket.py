@@ -37,7 +37,8 @@ def gravity(x, z):
 
 
 
-##After implementing thrust, create soemthing for size (mass) of the rocket, and for heat possibly
+##After implementing thrust, create soemthing for size (mass) of the rocket, fuselage material, fuel and for heat
+##ideally, if I can get 5 components working, the rocket should be good enough to create a simple resevoir
 
 class Rockets:
     global mass,rPlanet,mPlanet,G
