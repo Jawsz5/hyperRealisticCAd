@@ -12,6 +12,7 @@ mPlanet = 5.972e24
 
 #Rocket parameters
 mass = 640.0/100 ##Kg
+max_thrust = 20.0 #newtons of thrusts
 
 #motion equations: F=ma = m*2nd derivative of altitude
 #z is the altitude from the center of the planet along the north pole
@@ -36,10 +37,24 @@ def gravity(x, z):
     return np.asarray([accelX, accelZ])
 
 
+###### VIDEO AT 8:28
+def thrust(t):
+    if t < 5:
+        thrustF = max_thrust
+    else:
+        thrustF = 0.0
+
+    #thruster angle
+    theta = 0.0
+    thrustX = thrustF * np.cos(theta)
+    thrustZ = thrustF * np.sin(theta)
+
+    return np.asarray([thrustX, thrustZ])
 
 ##After implementing thrust, create soemthing for size (mass) of the rocket, fuselage material, fuel and for heat
 ##ideally, if I can get 5 components working, the rocket should be good enough to create a simple resevoir
 
+##current components are thrust angle, thrust force, mass
 class Rockets:
     global mass,rPlanet,mPlanet,G
 
@@ -54,7 +69,7 @@ class Rockets:
         #total forces: gravity, aerodynamics, thrust
         gravityF = -gravity(x,z) * mass
         aeroF = np.asarray([0.0, 0.0]) #for now
-        thrustF = np.asarray([0.0, 0.0]) #for now
+        thrustF = thrust(t) #for now
         forces = gravityF + aeroF + thrustF
 
         #zdot - kinematic relationship
@@ -76,15 +91,25 @@ class Rockets:
     print('Surface Gravity (m/s^2) = ',gravity(0, rPlanet))
 
     ###initial conditions
+    '''
     x0 = rPlanet + 600000
     z0 = 00.0
     r0 = np.sqrt(x0**2+z0**2)
     veloZ0 = np.sqrt(G*mPlanet/r0)*1.1 #m/s
     veloX0 = 100.0
+
+    period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
+    '''
+
+    ###initial conditions for single stage rocket
+    x0 = rPlanet
+    z0 = 0.0
+    veloZ0 = 0.0
+    veloX0 = 0.0
     initialState = np.array([x0, z0, veloX0, veloZ0])
 
     #Time window
-    period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
+    period = 25
     tup = np.linspace(0,period,1000)
 
     #numerical integration call
@@ -117,7 +142,7 @@ class Rockets:
     plt.figure()
     plt.plot(xup, zup, 'r-', label='Orbit')
     plt.plot(xup[0], zup[0], 'g*')
-    theta = np.linspace(0,2*np.pi,100)
+    theta = np.linspace(0,2*np.pi,1000)
     xPlanet = rPlanet*np.sin(theta)
     yPlanet = rPlanet*np.cos(theta)
     plt.plot(xPlanet,yPlanet, 'b-', label = 'Planet')
