@@ -11,8 +11,17 @@ rPlanet = 6357000 #kilometers
 mPlanet = 5.972e24
 
 #Rocket parameters
-mass = 640.0/100 ##Kg
-max_thrust = 20.0 #newtons of thrusts
+max_thrust = 2000.0 #newtons of thrusts
+Isp = 200.0 #seconds
+tMECO = 20.0 #seconds
+weighttons = 5.3
+mass0 = weighttons ##Kg
+x0 = rPlanet
+z0 = 0.0
+veloZ0 = 0.0
+veloX0 = 0.0
+period = 250.0
+
 
 #motion equations: F=ma = m*2nd derivative of altitude
 #z is the altitude from the center of the planet along the north pole
@@ -38,7 +47,9 @@ def gravity(x, z):
 
 
 ###### VIDEO AT 8:28
-def thrust(t):
+def propulsion(t):
+    global max_thrust, Isp, tMECO
+    if t < tMECO:
     if t < 5:
         thrustF = max_thrust
     else:
@@ -49,7 +60,11 @@ def thrust(t):
     thrustX = thrustF * np.cos(theta)
     thrustZ = thrustF * np.sin(theta)
 
-    return np.asarray([thrustX, thrustZ])
+    #mdot
+    ve = Isp*9.81 #m/s #exit velo
+    mdot = -thrustF/ve
+
+    return np.asarray([thrustX, thrustZ]), mdot
 
 ##After implementing thrust, create soemthing for size (mass) of the rocket, fuselage material, fuel and for heat
 ##ideally, if I can get 5 components working, the rocket should be good enough to create a simple resevoir
@@ -59,17 +74,17 @@ class Rockets:
     global mass,rPlanet,mPlanet,G
 
     def Derivatives(state, t):
-        global mass
         #state vector
         x = state[0]
         z = state[1]
         veloX = state[2]
         veloZ = state[3]
+        mass = state[4]
 
         #total forces: gravity, aerodynamics, thrust
         gravityF = -gravity(x,z) * mass
         aeroF = np.asarray([0.0, 0.0]) #for now
-        thrustF = thrust(t) #for now
+        thrustF,mdot = propulsion(t) #for now
         forces = gravityF + aeroF + thrustF
 
         #zdot - kinematic relationship
@@ -77,10 +92,14 @@ class Rockets:
         xdot = veloX
 
         #compute acceleration
-        ddot = forces/mass
+        if mass > 0:
+            ddot = forces/mass
+        else:
+            ddot = 0
+            mdot = 0
 
         #compute the state dot vector
-        stateDot = np.asarray([xdot, zdot,ddot[0], ddot[1]])
+        stateDot = np.asarray([xdot, zdot,ddot[0], ddot[1], mdot])
 
 
 
@@ -101,15 +120,9 @@ class Rockets:
     period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
     '''
 
-    ###initial conditions for single stage rocket
-    x0 = rPlanet
-    z0 = 0.0
-    veloZ0 = 0.0
-    veloX0 = 0.0
-    initialState = np.array([x0, z0, veloX0, veloZ0])
+    initialState = np.asarray([x0, z0, veloX0, veloZ0, mass0])
 
     #Time window
-    period = 25
     tup = np.linspace(0,period,1000)
 
     #numerical integration call
@@ -121,6 +134,7 @@ class Rockets:
     veloXup = stateup[:, 2]
     veloZup = stateup[:, 3]
     veloup = np.sqrt(veloXup**2 + veloZup**2)
+    massout = stateup[:,4]
 
     ##plot this thing
 
@@ -137,6 +151,13 @@ class Rockets:
     plt.xlabel("Time (seconds)")
     plt.ylabel("Total speed (meters/Second)")
     plt.grid();
+
+    ##mass
+    plt.figure()
+    plt.plot(tup, massout)
+    plt.xlabel('Time (sec)')
+    plt.ylabel('Mass (kg)')
+    plt.grid()
 
     ##2d orbit
     plt.figure()
