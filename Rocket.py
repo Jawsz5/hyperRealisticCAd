@@ -11,11 +11,11 @@ rPlanet = 6357000 #kilometers
 mPlanet = 5.972e24
 
 #Rocket parameters
-max_thrust = 2000.0 #newtons of thrusts
+max_thrust = 167000 #newtons of thrusts
 Isp = 200.0 #seconds
 tMECO = 20.0 #seconds
 weighttons = 5.3
-mass0 = weighttons ##Kg
+mass0 = weighttons*2000/2.2 ##Kg
 x0 = rPlanet
 z0 = 0.0
 veloZ0 = 0.0
