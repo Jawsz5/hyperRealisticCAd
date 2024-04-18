@@ -11,9 +11,12 @@ rPlanet = 6357000 #kilometers
 mPlanet = 5.972e24
 
 #Rocket parameters
-max_thrust = 167000 #newtons of thrusts
+max_thrust = 167097.0 #newtons of thrusts
 Isp = 200.0 #seconds
 tMECO = 20.0 #seconds
+tSep1 = 2.0 #length of time to remove first stage
+mass1tons = 1.0
+mass1 = mass1tons * 2000/2.2
 weighttons = 5.3
 mass0 = weighttons*2000/2.2 ##Kg
 x0 = rPlanet
@@ -46,30 +49,33 @@ def gravity(x, z):
     return np.asarray([accelX, accelZ])
 
 
-###### VIDEO AT 8:28
 def propulsion(t):
-    global max_thrust, Isp, tMECO
+    global max_thrust, Isp, tMECO, ve
+    ##timing for thrusters
     if t < tMECO:
-    if t < 5:
+        #fire the main thruster
         thrustF = max_thrust
-    else:
+        mdot = -thrustF/ve
+    if t > tMECO and t < (tMECO + tSep1):
         thrustF = 0.0
+        ## masslost = mass1 
+        mdot = -mass1/tSep1
+    if t > (tMECO + tSep1):
+        thrustF = 0.0
+        mdot = 0.0
 
     #thruster angle
-    theta = 0.0
+    theta = 10*np.pi/180
     thrustX = thrustF * np.cos(theta)
     thrustZ = thrustF * np.sin(theta)
 
-    #mdot
-    ve = Isp*9.81 #m/s #exit velo
-    mdot = -thrustF/ve
 
     return np.asarray([thrustX, thrustZ]), mdot
 
 ##After implementing thrust, create soemthing for size (mass) of the rocket, fuselage material, fuel and for heat
 ##ideally, if I can get 5 components working, the rocket should be good enough to create a simple resevoir
 
-##current components are thrust angle, thrust force, mass
+##current components are thrust angle, thrust force, mass, second stage
 class Rockets:
     global mass,rPlanet,mPlanet,G
 
@@ -120,6 +126,9 @@ class Rockets:
     period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
     '''
 
+    ##compute exit velocity
+    ve = Isp*9.81 #m/s
+    ##populate initial condition vector
     initialState = np.asarray([x0, z0, veloX0, veloZ0, mass0])
 
     #Time window
