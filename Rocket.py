@@ -12,18 +12,22 @@ mPlanet = 5.972e24
 
 #Rocket parameters
 max_thrust = 167097.0 #newtons of thrusts
-Isp = 200.0 #seconds
+Isp1 = 200.0 #seconds
+Isp2 = 400.0
 tMECO = 20.0 #seconds
 tSep1 = 2.0 #length of time to remove first stage
-mass1tons = 1.0
-mass1 = mass1tons * 2000/2.2
+weight1tons = 0.2
+mass1 = weight1tons * 2000/2.2
 weighttons = 5.3
 mass0 = weighttons*2000/2.2 ##Kg
 x0 = rPlanet
 z0 = 0.0
 veloZ0 = 0.0
 veloX0 = 0.0
-period = 250.0
+r0 = 200000 + rPlanet
+period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
+t2Start = 261.0
+t2end = t2Start + 10.0
 
 
 #motion equations: F=ma = m*2nd derivative of altitude
@@ -40,7 +44,7 @@ def gravity(x, z):
 
     r = np.sqrt(x**2 + z**2)
 
-    if r < rPlanet:
+    if r < 0:
         accelX = 0.0
         accelZ = 0.0
     else:
@@ -50,22 +54,35 @@ def gravity(x, z):
 
 
 def propulsion(t):
-    global max_thrust, Isp, tMECO, ve
+    global max_thrust, Isp, tMECO
     ##timing for thrusters
     if t < tMECO:
         #fire the main thruster
+        theta = 10*np.pi/180
         thrustF = max_thrust
+        ## exit velocity
+        ve = Isp1*9.81 #m/s
         mdot = -thrustF/ve
     if t > tMECO and t < (tMECO + tSep1):
+        theta = 0.0
         thrustF = 0.0
         ## masslost = mass1 
         mdot = -mass1/tSep1
     if t > (tMECO + tSep1):
+        theta = 0.0
+        thrustF = 0.0
+        mdot = 0.0
+    if t > t2Start and t < t2end:
+        #after first stage
+        theta = 90.0*np.pi/100.0
+        thrustF = max_thrust
+        ve = Isp2*9.81 #m/s
+        mdot = -thrustF/ve
+    if t > t2end:
+        theta = 0.0
         thrustF = 0.0
         mdot = 0.0
 
-    #thruster angle
-    theta = 10*np.pi/180
     thrustX = thrustF * np.cos(theta)
     thrustZ = thrustF * np.sin(theta)
 
@@ -88,7 +105,7 @@ class Rockets:
         mass = state[4]
 
         #total forces: gravity, aerodynamics, thrust
-        gravityF = -gravity(x,z) * mass
+        gravityF, r = -gravity(x,z) * mass
         aeroF = np.asarray([0.0, 0.0]) #for now
         thrustF,mdot = propulsion(t) #for now
         forces = gravityF + aeroF + thrustF
@@ -126,8 +143,6 @@ class Rockets:
     period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
     '''
 
-    ##compute exit velocity
-    ve = Isp*9.81 #m/s
     ##populate initial condition vector
     initialState = np.asarray([x0, z0, veloX0, veloZ0, mass0])
 
