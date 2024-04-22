@@ -1,7 +1,7 @@
 import numpy as np
 from Rocket import Rocket
 
-# Define the parameters for 10 real rockets
+# Define the parameters for 15 real rockets
 rockets_data = [
     {"name": "Falcon 9", "thrust": 7607e3, "mass": [549054, 549054 + 10188], "nozzle": [282, 348], "frame_material": "Aluminum", "fuel": "RP-1/LOX", "fins": 4},
     {"name": "Saturn V", "thrust": 35080e3, "mass": [2970000, 2970000 + 127000], "nozzle": [265, 421], "frame_material": "Aluminum", "fuel": "RP-1/LOX", "fins": 0},
