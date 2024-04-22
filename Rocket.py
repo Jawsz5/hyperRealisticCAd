@@ -1,200 +1,160 @@
-## modules needed
-import numpy as np #numeric python
-import matplotlib.pyplot as plt #graphing things with matlab
-import scipy.integrate as sci #integrating things
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.integrate as sci
 
+class Rocket:
+    def __init__(self, name, thrust, mass, nozzle, frame_material, fuel, fins):
+        # Constants
+        self.G = 6.6742e-11  # Gravitational constant in m^3/kg/s^2
+        self.rPlanet = 6357000  # Radius of the planet in meters
+        self.mPlanet = 5.972e24  # Mass of the planet in kg
 
+        # Rocket parameters
+        self.name = name
+        self.max_thrust = thrust  # Newtons of thrust
+        self.Isp1 = nozzle[0]  # Specific impulse of first stage in seconds
+        self.Isp2 = nozzle[1]  # Specific impulse of second stage in seconds
+        self.tMECO = 20.0  # Main Engine Cut Off time in seconds
+        self.tSep1 = 2.0  # Time to remove first stage in seconds
+        self.mass1 = mass[0]  # Mass of first stage in kg
+        self.mass0 = mass[1]  # Mass of rocket without fuel in kg
+        self.frame_material = frame_material
+        self.fuel = fuel
+        self.fins = fins
 
-##After implementing thrust, create soemthing for size (mass) of the rocket, fuselage material, fuel and for heat
-##ideally, if I can get 5 components working, the rocket should be good enough to create a simple resevoir
+    def Cd(self, velocity):
+        # Placeholder for drag coefficient calculation
+        # Example: quadratic drag coefficient model
+        return 0.1 + 0.01 * velocity  # Example linear relationship
 
-##current components are thrust angle, thrust force, mass, second stage
+    def heat_generation(self, state):
+        x, z, veloX, veloZ, mass = state
+        velocity = np.sqrt(veloX**2 + veloZ**2)
+        return 0.5 * mass * velocity**2  # Simplified approximation of mechanical energy
 
-## need to create a constructor
-class Rockets:
-    global G,rPlanet, mPlanet,max_trhust,Isp1,Isp2,tMeco, tSep1, mass1, mass0, x0, z0, veloZ0, veloX0, r0, period, t2Start, t2end
-    ##Constant parameters
-    G = 6.6742*10**-11 #gravitational constant in SI units
-    ###Planet
-    rPlanet = 6357000 #kilometers
-    mPlanet = 5.972e24
-
-    #Rocket parameters
-    max_thrust = 167097.0 #newtons of thrusts
-    Isp1 = 200.0 #seconds
-    Isp2 = 400.0
-    tMECO = 20.0 #seconds
- 
-    tSep1 = 2.0 #length of time to remove first stage
-    weight1tons = 0.2
-    mass1 = weight1tons * 2000/2.2
-    weighttons = 5.3
-    mass0 = weighttons*2000/2.2 ##Kg
-    x0 = rPlanet
-    z0 = 0.0
-    veloZ0 = 0.0
-    veloX0 = 0.0
-    r0 = 200000 + rPlanet
-    period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
-    t2Start = 261.0
-    t2end = t2Start + 10.0
-
-
-    #motion equations: F=ma = m*2nd derivative of altitude
-    #z is the altitude from the center of the planet along the north pole
-    #x is the altitude from the center along the equator
-    # meters
-    #zdot is the velcoity along z
-    #z double dot is the acceleration along z
-    #second order differential equation
-
-    ##Gravitaitonal acceleration model
-    def gravity(x, z):
-        global rPlanet,mPlanet
-
-        r = np.sqrt(x**2 + z**2)
-
-        if r < 0:
-            accelX = 0.0
-            accelZ = 0.0
+    def temperature_change(self, heat_generated, frame_material):
+        # Placeholder for temperature change calculation based on frame material
+        if frame_material == "Aluminum":
+            heat_capacity = 900  # J/(kg*K)
+            temperature_change_per_joule = 0.0001  # Example value
+            return heat_generated * temperature_change_per_joule / heat_capacity
+        elif frame_material == "Steel":
+            heat_capacity = 450  # J/(kg*K)
+            temperature_change_per_joule = 0.0002  # Example value
+            return heat_generated * temperature_change_per_joule / heat_capacity
+        elif frame_material == "Titanium":
+            heat_capacity = 520  # J/(kg*K)
+            temperature_change_per_joule = 0.00015  # Example value
+            return heat_generated * temperature_change_per_joule / heat_capacity
+        elif frame_material == "Carbon Fiber":
+            heat_capacity = 600  # J/(kg*K)
+            temperature_change_per_joule = 0.00012  # Example value
+            return heat_generated * temperature_change_per_joule / heat_capacity
         else:
-            accelX = G*mPlanet/(r**3)*x
-            accelZ = G*mPlanet/(r**3)*z
-        return np.asarray([accelX, accelZ])
+            # Default calculation for other materials
+            return 0.0
 
+    def gravity(self, x, z):
+        r = np.sqrt(x**2 + z**2)
+        accelX = -self.G * self.mPlanet / (r**3) * x
+        accelZ = -self.G * self.mPlanet / (r**3) * z
+        return np.array([accelX, accelZ])
 
-    def propulsion(t):
-        global max_thrust, Isp, tMECO
-        ##timing for thrusters
-        if t < tMECO:
-            #fire the main thruster
-            theta = 10*np.pi/180
-            thrustF = max_thrust
-            ## exit velocity
-            ve = Isp1*9.81 #m/s
-            mdot = -thrustF/ve
-        if t > tMECO and t < (tMECO + tSep1):
+    def propulsion(self, t):
+        if t < self.tMECO:
+            theta = 10 * np.pi / 180
+            thrustF = self.max_thrust
+            ve = self.Isp1 * 9.81  # Exit velocity in m/s
+            mdot = -thrustF / ve
+        elif t < (self.tMECO + self.tSep1):
             theta = 0.0
             thrustF = 0.0
-            ## masslost = mass1 
-            mdot = -mass1/tSep1
-        if t > (tMECO + tSep1):
-            theta = 0.0
-            thrustF = 0.0
-            mdot = 0.0
-        if t > t2Start and t < t2end:
-            #after first stage
-            theta = 90.0*np.pi/100.0
-            thrustF = max_thrust
-            ve = Isp2*9.81 #m/s
-            mdot = -thrustF/ve
-        if t > t2end:
+            mdot = -self.mass1 / self.tSep1
+        else:
             theta = 0.0
             thrustF = 0.0
             mdot = 0.0
-
         thrustX = thrustF * np.cos(theta)
         thrustZ = thrustF * np.sin(theta)
+        return np.array([thrustX, thrustZ]), mdot
 
-
-        return np.asarray([thrustX, thrustZ]), mdot
-
-    def Derivatives(state, t):
-        #state vector
-        x = state[0]
-        z = state[1]
-        veloX = state[2]
-        veloZ = state[3]
-        mass = state[4]
-
-        #total forces: gravity, aerodynamics, thrust
-
-        ## get these to be called properly
-        gravityF, r = -gravity(x,z) * mass
-        aeroF = np.asarray([0.0, 0.0]) #for now
-        thrustF,mdot = propulsion(t) #for now
-        forces = gravityF + aeroF + thrustF
-
-        #zdot - kinematic relationship
+    def derivatives(self, state, t):
+        x, z, veloX, veloZ, mass = state
+        gravityF = self.gravity(x, z) * mass
+        velocity = np.sqrt(veloX**2 + veloZ**2)
+        heat_generated = self.heat_generation(state)
+        temperature_change = self.temperature_change(heat_generated, self.frame_material)
+        mass -= temperature_change
+        if velocity > 0.0:  # Check if velocity is greater than zero
+            aeroF = -0.5 * self.Cd(velocity) * velocity**2  # Drag force
+            aeroF_x = aeroF * veloX / velocity
+            aeroF_z = aeroF * veloZ / velocity
+        else:
+            aeroF_x = 0.0
+            aeroF_z = 0.0
+        thrustF, mdot = self.propulsion(t)
+        forces = gravityF + np.array([aeroF_x, aeroF_z]) + thrustF
         zdot = veloZ
         xdot = veloX
-
-        #compute acceleration
         if mass > 0:
-            ddot = forces/mass
+            ddot = forces / mass
         else:
             ddot = 0
             mdot = 0
+        state_dot = np.array([xdot, zdot, ddot[0], ddot[1], mdot])
+        return state_dot
 
-        #compute the state dot vector
-        stateDot = np.asarray([xdot, zdot,ddot[0], ddot[1], mdot])
+    def simulate_flight(self):
+        x0 = self.rPlanet
+        z0 = 0.0
+        veloX0 = 0.0
+        veloZ0 = 0.0
+        mass0 = self.mass0
+        initial_state = np.array([x0, z0, veloX0, veloZ0, mass0])
+        period = 2 * np.pi / np.sqrt(self.G * self.mPlanet) * (self.rPlanet + 200000) ** (3.0 / 2.0) * 1.5
+        time = np.linspace(0, period, 1000)
+        state_output = sci.odeint(self.derivatives, initial_state, time)
+        x = state_output[:, 0]
+        z = state_output[:, 1]
+        altitude = np.sqrt(x ** 2 + z ** 2) - self.rPlanet
+        veloX = state_output[:, 2]
+        veloZ = state_output[:, 3]
+        velocity = np.sqrt(veloX ** 2 + veloZ ** 2)
+        mass = state_output[:, 4]
 
+        # Plotting
+        plt.figure()
+        plt.plot(time, altitude)
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Altitude (meters)")
+        plt.title("Altitude vs Time")
+        plt.grid()
 
+        plt.figure()
+        plt.plot(time, velocity)
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Velocity (m/s)")
+        plt.title("Velocity vs Time")
+        plt.grid()
 
-        return stateDot
+        plt.figure()
+        plt.plot(time, mass)
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Mass (kg)")
+        plt.title("Mass vs Time")
+        plt.grid()
 
-    #### MAIN SCRIPT
+        plt.figure()
+        plt.plot(x, z, 'r-', label='Orbit')
+        plt.plot(x[0], z[0], 'g*')
+        theta = np.linspace(0, 2 * np.pi, 1000)
+        xPlanet = self.rPlanet * np.sin(theta)
+        yPlanet = self.rPlanet * np.cos(theta)
+        plt.plot(xPlanet, yPlanet, 'b-', label='Planet')
+        plt.xlabel("x (meters)")
+        plt.ylabel("z (meters)")
+        plt.title("2D Orbit")
+        plt.grid()
+        plt.legend()
 
-    print('Surface Gravity (m/s^2) = ',gravity(0, rPlanet))
-
-    ###initial conditions
-    '''
-    x0 = rPlanet + 600000
-    z0 = 00.0
-    r0 = np.sqrt(x0**2+z0**2)
-    veloZ0 = np.sqrt(G*mPlanet/r0)*1.1 #m/s
-    veloX0 = 100.0
-
-    period = 2*np.pi/np.sqrt(G*mPlanet)*r0**(3.0/2.0)*1.5
-    '''
-
-    ##populate initial condition vector
-    initialState = np.asarray([x0, z0, veloX0, veloZ0, mass0])
-
-    #Time window
-    tup = np.linspace(0,period,1000)
-
-    #numerical integration call
-    stateup = sci.odeint(Derivatives, initialState, tup)
-
-    xup = stateup[:,0]
-    zup = stateup[:, 1]
-    altitude = np.sqrt(xup**2 + zup**2) - rPlanet
-    veloXup = stateup[:, 2]
-    veloZup = stateup[:, 3]
-    veloup = np.sqrt(veloXup**2 + veloZup**2)
-    massout = stateup[:,4]
-
-    ##plot this thing
-
-
-    ##altitude
-    plt.plot(tup, altitude)
-    plt.xlabel("Time (seconds)")
-    plt.ylabel("Altitude (meters)")
-    plt.grid();
-
-    ##velo
-    plt.figure(); ##new graph
-    plt.plot(tup, veloup)
-    plt.xlabel("Time (seconds)")
-    plt.ylabel("Total speed (meters/Second)")
-    plt.grid();
-
-    ##mass
-    plt.figure()
-    plt.plot(tup, massout)
-    plt.xlabel('Time (sec)')
-    plt.ylabel('Mass (kg)')
-    plt.grid()
-
-    ##2d orbit
-    plt.figure()
-    plt.plot(xup, zup, 'r-', label='Orbit')
-    plt.plot(xup[0], zup[0], 'g*')
-    theta = np.linspace(0,2*np.pi,1000)
-    xPlanet = rPlanet*np.sin(theta)
-    yPlanet = rPlanet*np.cos(theta)
-    plt.plot(xPlanet,yPlanet, 'b-', label = 'Planet')
-    plt.grid()
-    plt.legend()
+        plt.show()
