@@ -26,6 +26,6 @@ rockets_data = [
 for rocket_data in rockets_data:
     rocket = Rocket(rocket_data["name"], rocket_data["thrust"], rocket_data["mass"], rocket_data["nozzle"],
                     rocket_data["frame_material"], rocket_data["fuel"], rocket_data["fins"])
-    print(f"Simulating flight of {rocket_data['name']}...")
+    print(rocket.can_achieve_orbit())
     rocket.simulate_flight()
     print("=" * 50)

@@ -80,61 +80,45 @@ class Rocket:
 
     def derivatives(self, state, t):
         x, z, veloX, veloZ, mass = state
-        gravityF = self.gravity(x, z) * mass
+        r = np.sqrt(x**2 + z**2)
+        
+        if r != 0:
+            accelX = -self.G * self.mPlanet / (r**3) * x
+            accelZ = -self.G * self.mPlanet / (r**3) * z
+        else:
+            accelX = 0
+            accelZ = 0
+        
+        gravityF = np.array([accelX, accelZ]) * mass
         velocity = np.sqrt(veloX**2 + veloZ**2)
+        
         heat_generated = self.heat_generation(state)
         temperature_change = self.temperature_change(heat_generated, self.frame_material)
         mass -= temperature_change
-        if velocity > 0.0:  # Check if velocity is greater than zero
-            aeroF = -0.5 * self.Cd(velocity) * velocity**2  # Drag force
+        
+        if velocity > 0.0:
+            aeroF = -0.5 * self.Cd(velocity) * velocity**2
             aeroF_x = aeroF * veloX / velocity
             aeroF_z = aeroF * veloZ / velocity
         else:
             aeroF_x = 0.0
             aeroF_z = 0.0
+        
         thrustF, mdot = self.propulsion(t)
         forces = gravityF + np.array([aeroF_x, aeroF_z]) + thrustF
         zdot = veloZ
         xdot = veloX
+        
         if mass > 0:
             ddot = forces / mass
         else:
-            ddot = 0
+            ddot = np.array([0, 0])
             mdot = 0
+        
         state_dot = np.array([xdot, zdot, ddot[0], ddot[1], mdot])
         return state_dot
     
-    def overheating(self, state):
-        heat_generated = self.heat_generation(state)
-        temperature_change = self.temperature_change(heat_generated, self.frame_material)
-        return heat_generated <= temperature_change
-
-    def aerodynamic_failure(self, velocity):
-        max_velocity_for_stability = 500  # Define a maximum stable velocity
-        return velocity <= max_velocity_for_stability
-
-    def enough_thrust_mass_constraint(self):
-        # Check if there is enough thrust to lift the rocket of given mass
-        return self.max_thrust >= self.mass0 * 9.81
-
-    def can_reach_orbit(self, x0=0.0, z0=0.0, veloX0=0.0, veloZ0=0.0):
-        initial_state = [x0, z0, veloX0, veloZ0, self.mass0]
-        period = 2 * np.pi / np.sqrt(self.G * self.mPlanet) * (self.rPlanet + 200000) ** (3.0 / 2.0) * 1.5
-        time = np.linspace(0, period, 1000)
-
-        state_output = sci.odeint(self.derivatives, initial_state, time)
-        altitude = np.sqrt(state_output[:, 0] ** 2 + state_output[:, 1] ** 2) - self.rPlanet
-        velocity = np.sqrt(state_output[:, 2] ** 2 + state_output[:, 3] ** 2)
-        max_altitude = max(altitude)
-
-        overheating_check = all(self.overheating(state) for state in state_output)
-        aerodynamic_failure_check = all(self.Cd(v) < 0.3 for v in velocity)  # Example Cd threshold
-        enough_thrust_mass_constraint_check = self.enough_thrust_mass_constraint()
-
-        if max_altitude > 0 and overheating_check and aerodynamic_failure_check and enough_thrust_mass_constraint_check:
-            return True
-        else:
-            return False
+    
 
     def simulate_flight(self):
         x0 = self.rPlanet
@@ -190,3 +174,37 @@ class Rocket:
         plt.legend()
 
         plt.show()
+    
+    def calculate_delta_v(self):
+        # Integrate the rocket's motion equations to calculate delta-v
+        timesteps = 1000
+        t = np.linspace(0, self.tMECO, timesteps)
+        initial_state = np.array([self.rPlanet, 0.0, 0.0, 0.0, self.mass0])
+        state_output = sci.odeint(self.derivatives, initial_state, t)
+        
+        # Calculate the initial and final velocity
+        initial_velocity = np.sqrt(initial_state[2]**2 + initial_state[3]**2)
+        final_velocity = np.sqrt(state_output[-1, 2]**2 + state_output[-1, 3]**2)
+        
+        # Calculate delta-v
+        delta_v = final_velocity - initial_velocity
+        
+        # Add gravitational effects
+        r_orbit = self.rPlanet + 200000  # Assuming altitude of 200 km
+        v_orbit = np.sqrt(self.G * self.mPlanet / r_orbit)
+        delta_v += v_orbit
+        
+        return delta_v
+
+    def can_achieve_orbit(self):
+        # Calculate required velocity to achieve orbit
+        r_orbit = self.rPlanet + 200000  # Assuming altitude of 200 km
+        v_orbit = np.sqrt(self.G * self.mPlanet / r_orbit)
+
+        # Calculate delta-v capability of the rocket
+        delta_v_capability = self.calculate_delta_v()
+
+        # Check if rocket's delta-v capability exceeds required delta-v
+        return delta_v_capability >= v_orbit
+
+
