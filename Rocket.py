@@ -103,6 +103,38 @@ class Rocket:
             mdot = 0
         state_dot = np.array([xdot, zdot, ddot[0], ddot[1], mdot])
         return state_dot
+    
+    def overheating(self, state):
+        heat_generated = self.heat_generation(state)
+        temperature_change = self.temperature_change(heat_generated, self.frame_material)
+        return heat_generated <= temperature_change
+
+    def aerodynamic_failure(self, velocity):
+        max_velocity_for_stability = 500  # Define a maximum stable velocity
+        return velocity <= max_velocity_for_stability
+
+    def enough_thrust_mass_constraint(self):
+        # Check if there is enough thrust to lift the rocket of given mass
+        return self.max_thrust >= self.mass0 * 9.81
+
+    def can_reach_orbit(self, x0=0.0, z0=0.0, veloX0=0.0, veloZ0=0.0):
+        initial_state = [x0, z0, veloX0, veloZ0, self.mass0]
+        period = 2 * np.pi / np.sqrt(self.G * self.mPlanet) * (self.rPlanet + 200000) ** (3.0 / 2.0) * 1.5
+        time = np.linspace(0, period, 1000)
+
+        state_output = sci.odeint(self.derivatives, initial_state, time)
+        altitude = np.sqrt(state_output[:, 0] ** 2 + state_output[:, 1] ** 2) - self.rPlanet
+        velocity = np.sqrt(state_output[:, 2] ** 2 + state_output[:, 3] ** 2)
+        max_altitude = max(altitude)
+
+        overheating_check = all(self.overheating(state) for state in state_output)
+        aerodynamic_failure_check = all(self.Cd(v) < 0.3 for v in velocity)  # Example Cd threshold
+        enough_thrust_mass_constraint_check = self.enough_thrust_mass_constraint()
+
+        if max_altitude > 0 and overheating_check and aerodynamic_failure_check and enough_thrust_mass_constraint_check:
+            return True
+        else:
+            return False
 
     def simulate_flight(self):
         x0 = self.rPlanet

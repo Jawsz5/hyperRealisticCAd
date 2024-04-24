@@ -22,7 +22,7 @@ LimitFinder.py -
             1. Parameters: just take in the list which contains all of the important information of the dataset
             2. Generate a resevoir: 
                 a) the number of initial nodes will be the number of elements in the list.
-                b) Initialize those nodes with values the corresponding vlaues in the list passed into the network
+                b) Initialize those nodes with values the corresponding values in the list passed into the network
                 C) generate intial weights that represent all of the possible reactions/interactions between palyers/molecules. The weights will be the reaction equation outputs
             3. Operation of the neural network:
                 a) Does not have to understand the "good" reactions/games
