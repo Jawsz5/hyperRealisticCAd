@@ -78,6 +78,8 @@ class Rocket:
         thrustZ = thrustF * np.sin(theta)
         return np.array([thrustX, thrustZ]), mdot
 
+
+## I coudl try and add aerodynamic and heat forces again
     def derivatives(self, state, t):
         x, z, veloX, veloZ, mass = state
         r = np.sqrt(x**2 + z**2)
