@@ -89,6 +89,7 @@ def compute_dependency_strengths(rocket, G):
     return dependency_strengths
 
 # Example usage:
+
 rocket = Rocket("Falcon 9", thrust=10000, mass=5000, nozzle=0.5, frame_material=0.6, fuel=0.4, fins=0.3)
 rocket_network = create_rocket_network()
 dependency_strengths = compute_dependency_strengths(rocket, rocket_network)
