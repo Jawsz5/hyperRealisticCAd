@@ -24,6 +24,15 @@ rockets_data = [
 
 ]
 
+
+# Simulate flights for each rocket
+for rocket_data in rockets_data:
+    rocket = Rocket(rocket_data["name"], rocket_data["thrust"], rocket_data["mass"], rocket_data["nozzle"],
+                    rocket_data["frame_material"], rocket_data["fuel"], rocket_data["fins"])
+    print(f"Rocket: {rocket.name}")
+    print(rocket.can_achieve_orbit())
+    print("=" * 50)
+
 # List to store instances of rockets
 rockets = []
 
@@ -49,24 +58,18 @@ for i in range(20):
     rockets.append(Rocket(name, thrust, (mass1, mass0), nozzle, frame_material, fuel, fins))
 
 # Simulating flight for each rocket
+#about 30-50% of these rockets with randomized parameters fail which is ideal
 for rocket in rockets:
     print(f"Rocket: {rocket.name}")
     print("\n")
     print(rocket.can_achieve_orbit())
 
 
-# Simulate flights for each rocket
-for rocket_data in rockets_data:
-    rocket = Rocket(rocket_data["name"], rocket_data["thrust"], rocket_data["mass"], rocket_data["nozzle"],
-                    rocket_data["frame_material"], rocket_data["fuel"], rocket_data["fins"])
-    print(rocket.can_achieve_orbit())
-    print("=" * 50)
-
 
 
 
 # Test the Rocket class with example rockets
-
+'''
 rocket1_thrust = 9000000  # Newtons of thrust
 rocket1_mass = (500000, 200000)  # Mass of first stage and rocket without fuel in kg
 rocket1 = Rocket("Rocket 1", rocket1_thrust, rocket1_mass, nozzle=(300, 320), frame_material="Aluminum", fuel=300000, fins=3)
@@ -88,3 +91,4 @@ print("Rocket 1 can achieve orbit:", rocket1.can_achieve_orbit())
 print("Rocket 2 can achieve orbit:", rocket2.can_achieve_orbit())
 print("Rocket 3 can achieve orbit:", rocket3.can_achieve_orbit())
 print("Rocket 4 can achieve orbit:", rocket4.can_achieve_orbit())
+'''

@@ -183,7 +183,7 @@ class Rocket:
 
     def can_achieve_orbit(self):
         # Calculate required velocity to achieve orbit
-        r_orbit = self.rPlanet + 200  # Assuming altitude of 200 km
+        r_orbit = self.rPlanet + 200000  # Assuming altitude of 200 km
         v_orbit = np.sqrt(self.G * self.mPlanet / r_orbit)
 
         # Calculate delta-v capability of the rocket
@@ -192,19 +192,4 @@ class Rocket:
         # Check if rocket's delta-v capability exceeds required delta-v
         return delta_v_capability >= v_orbit
 
-
-
-# Define rocket parameters for testing
-rocket3_thrust = 7000000  # Newtons
-rocket3_mass = (6000000, 5000000)  # Mass of first and second stage in kg
-rocket4_thrust = 8000000  # Newtons
-rocket4_mass = (5500000, 4500000)  # Mass of first and second stage in kg
-
-# Test rockets
-rocket3 = Rocket("Rocket 3", rocket3_thrust, rocket3_mass, nozzle=(340, 360), frame_material="Steel", fuel=90000, fins=4)
-rocket4 = Rocket("Rocket 4", rocket4_thrust, rocket4_mass, nozzle=(320, 350), frame_material="Aluminum", fuel=85000, fins=3)
-
-# Check if rockets can achieve orbit
-print("Rocket 3 can achieve orbit:", rocket3.can_achieve_orbit())
-print("Rocket 4 can achieve orbit:", rocket4.can_achieve_orbit())
 
