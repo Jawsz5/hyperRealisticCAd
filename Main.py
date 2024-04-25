@@ -1,5 +1,6 @@
 import numpy as np
 from Rocket import Rocket
+import random
 
 # Define the parameters for 15 real rockets
 rockets_data = [
@@ -21,6 +22,37 @@ rockets_data = [
 
 
 ]
+
+# List to store instances of rockets
+rockets = []
+
+# Creating 20 instances of rockets with randomized parameters
+for i in range(1, 21):
+    name = f"Rocket {i}"
+    thrust = random.uniform(50000, 300000)  # Randomized thrust value
+    nozzle = (random.uniform(100, 500), random.uniform(200, 600))  # Randomized nozzle specific impulse values
+    frame_materials = ["Aluminum", "Steel", "Titanium", "Carbon Fiber"]
+    frame_material = random.choice(frame_materials)  # Randomized frame material
+    fuel = random.uniform(1000, 10000)  # Randomized fuel mass
+    fins = random.randint(2, 6)  # Randomized number of fins
+
+    # Randomized mass with a range that allows for about a 70% chance of failure
+    min_mass = thrust / (max(nozzle) * 9.81) + 1000  # Minimum mass to ensure failure
+    max_mass = min_mass + random.uniform(10000, 50000)  # Randomized maximum mass
+    mass = (random.uniform(min_mass, max_mass), max_mass)  # Randomized mass range
+
+    # Creating a rocket instance and adding it to the list
+    rocket = Rocket(name, thrust, mass, nozzle, frame_material, fuel, fins)
+    rockets.append(rocket)
+
+# Simulating flight for each rocket
+for rocket in rockets:
+    print(f"Rocket: {rocket.name}")
+    print("Simulation Result:")
+    rocket.simulate_flight()
+    print("\n")
+
+
 
 # Simulate flights for each rocket
 for rocket_data in rockets_data:
