@@ -2,6 +2,7 @@ import numpy as np
 from Rocket import Rocket
 import random
 
+
 # Define the parameters for 15 real rockets
 rockets_data = [
     {"name": "Falcon 9", "thrust": 7607e3, "mass": [549054, 549054 + 10188], "nozzle": [282, 348], "frame_material": "Aluminum", "fuel": "RP-1/LOX", "fins": 4},
@@ -26,32 +27,32 @@ rockets_data = [
 # List to store instances of rockets
 rockets = []
 
-# rockets with low chance of reaching orbit
-for i in range(1, 21):
-    name = f"Rocket {i}"
-    thrust = random.uniform(50000, 200000)  # Randomized thrust value
-    nozzle = (random.uniform(100, 400), random.uniform(200, 500))  # Randomized nozzle specific impulse values
-    frame_materials = ["Aluminum", "Steel", "Titanium", "Carbon Fiber"]
-    frame_material = random.choice(frame_materials)  # Randomized frame material
-    fuel = random.uniform(1000, 5000)  # Randomized fuel mass
-    fins = random.randint(2, 4)  # Randomized number of fins
+# Define ranges for randomized parameters
+thrust_range = (1e6, 2e6)  # Thrust in Newtons
+mass_range = (1e5, 2e5)  # Mass in kg
+isp_range = (200, 400)  # Specific impulse in seconds
+material_options = ["Aluminum", "Steel", "Titanium", "Carbon Fiber"]
+fuel_range = (1e4, 2e4)  # Fuel mass in kg
+fin_options = ["Small", "Medium", "Large"]
 
-    # Randomized mass with a range that ensures failure for all rockets
-    min_mass = thrust / (max(nozzle) * 9.81) + 1000  # Minimum mass to ensure failure
-    max_mass = min_mass + random.uniform(10000, 50000)  # Randomized maximum mass
-    mass = (random.uniform(min_mass, max_mass), max_mass)  # Randomized mass range
-
-    # Creating a rocket instance and adding it to the list
-    rocket = Rocket(name, thrust, mass, nozzle, frame_material, fuel, fins)
-    rockets.append(rocket)
+# Create 20 instances of rockets with randomized parameters
+rockets = []
+for i in range(20):
+    name = f"Rocket {i+1}"
+    thrust = np.random.uniform(*thrust_range)
+    mass1 = np.random.uniform(*mass_range)
+    mass0 = mass1 + np.random.uniform(*fuel_range)  # Total mass including fuel
+    nozzle = (np.random.uniform(*isp_range), np.random.uniform(*isp_range))
+    frame_material = np.random.choice(material_options)
+    fuel = np.random.uniform(*fuel_range)
+    fins = np.random.choice(fin_options)
+    rockets.append(Rocket(name, thrust, (mass1, mass0), nozzle, frame_material, fuel, fins))
 
 # Simulating flight for each rocket
 for rocket in rockets:
     print(f"Rocket: {rocket.name}")
-    print("Simulation Result:")
-    rocket.simulate_flight()
     print("\n")
-
+    print(rocket.can_achieve_orbit())
 
 
 # Simulate flights for each rocket
@@ -59,5 +60,31 @@ for rocket_data in rockets_data:
     rocket = Rocket(rocket_data["name"], rocket_data["thrust"], rocket_data["mass"], rocket_data["nozzle"],
                     rocket_data["frame_material"], rocket_data["fuel"], rocket_data["fins"])
     print(rocket.can_achieve_orbit())
-    rocket.simulate_flight()
     print("=" * 50)
+
+
+
+
+# Test the Rocket class with example rockets
+
+rocket1_thrust = 9000000  # Newtons of thrust
+rocket1_mass = (500000, 200000)  # Mass of first stage and rocket without fuel in kg
+rocket1 = Rocket("Rocket 1", rocket1_thrust, rocket1_mass, nozzle=(300, 320), frame_material="Aluminum", fuel=300000, fins=3)
+
+rocket2_thrust = 8000000  # Newtons of thrust
+rocket2_mass = (550000, 210000)  # Mass of first stage and rocket without fuel in kg
+rocket2 = Rocket("Rocket 2", rocket2_thrust, rocket2_mass, nozzle=(310, 330), frame_material="Steel", fuel=280000, fins=4)
+
+rocket3_thrust = 6000000  # Newtons of thrust
+rocket3_mass = (450000, 190000)  # Mass of first stage and rocket without fuel in kg
+rocket3 = Rocket("Rocket 3", rocket3_thrust, rocket3_mass, nozzle=(340, 360), frame_material="Titanium", fuel=250000, fins=4)
+
+rocket4_thrust = 750000  # Newtons of thrust
+rocket4_mass = (480000, 220000)  # Mass of first stage and rocket without fuel in kg
+rocket4 = Rocket("Rocket 4", rocket4_thrust, rocket4_mass, nozzle=(320, 350), frame_material="Carbon Fiber", fuel=27, fins=3)
+
+# Test if rockets can achieve orbit
+print("Rocket 1 can achieve orbit:", rocket1.can_achieve_orbit())
+print("Rocket 2 can achieve orbit:", rocket2.can_achieve_orbit())
+print("Rocket 3 can achieve orbit:", rocket3.can_achieve_orbit())
+print("Rocket 4 can achieve orbit:", rocket4.can_achieve_orbit())

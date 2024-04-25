@@ -1,6 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.integrate as sci
+import matplotlib.pyplot as plt
 
 class Rocket:
     def __init__(self, name, thrust, mass, nozzle, frame_material, fuel, fins):
@@ -83,34 +83,19 @@ class Rocket:
         r = np.sqrt(x**2 + z**2)
         
         if r != 0:
-            accelX = -self.G * self.mPlanet / (r**3) * x
-            accelZ = -self.G * self.mPlanet / (r**3) * z
+            gravityF = self.gravity(x, z) * mass
         else:
-            accelX = 0
-            accelZ = 0
-        
-        gravityF = np.array([accelX, accelZ]) * mass
-        velocity = np.sqrt(veloX**2 + veloZ**2)
-        
-        heat_generated = self.heat_generation(state)
-        temperature_change = self.temperature_change(heat_generated, self.frame_material)
-        mass -= temperature_change
-        
-        if velocity > 0.0:
-            aeroF = -0.5 * self.Cd(velocity) * velocity**2
-            aeroF_x = aeroF * veloX / velocity
-            aeroF_z = aeroF * veloZ / velocity
-        else:
-            aeroF_x = 0.0
-            aeroF_z = 0.0
+            gravityF = np.array([0, 0])
         
         thrustF, mdot = self.propulsion(t)
-        forces = gravityF + np.array([aeroF_x, aeroF_z]) + thrustF
+        forces = gravityF + thrustF
         zdot = veloZ
         xdot = veloX
         
         if mass > 0:
-            ddot = forces / mass
+            accelX = forces[0] / mass
+            accelZ = forces[1] / mass
+            ddot = np.array([accelX, accelZ])
         else:
             ddot = np.array([0, 0])
             mdot = 0
@@ -118,8 +103,6 @@ class Rocket:
         state_dot = np.array([xdot, zdot, ddot[0], ddot[1], mdot])
         return state_dot
     
-    
-
     def simulate_flight(self):
         x0 = self.rPlanet
         z0 = 0.0
@@ -190,7 +173,7 @@ class Rocket:
         delta_v = final_velocity - initial_velocity
         
         # Add gravitational effects
-        r_orbit = self.rPlanet + 200000  # Assuming altitude of 200 km
+        r_orbit = self.rPlanet + 290000  # Assuming altitude of 200 km
         v_orbit = np.sqrt(self.G * self.mPlanet / r_orbit)
         delta_v += v_orbit
         
@@ -198,7 +181,7 @@ class Rocket:
 
     def can_achieve_orbit(self):
         # Calculate required velocity to achieve orbit
-        r_orbit = self.rPlanet + 200000  # Assuming altitude of 200 km
+        r_orbit = self.rPlanet + 200  # Assuming altitude of 200 km
         v_orbit = np.sqrt(self.G * self.mPlanet / r_orbit)
 
         # Calculate delta-v capability of the rocket
@@ -207,4 +190,19 @@ class Rocket:
         # Check if rocket's delta-v capability exceeds required delta-v
         return delta_v_capability >= v_orbit
 
+
+
+# Define rocket parameters for testing
+rocket3_thrust = 7000000  # Newtons
+rocket3_mass = (6000000, 5000000)  # Mass of first and second stage in kg
+rocket4_thrust = 8000000  # Newtons
+rocket4_mass = (5500000, 4500000)  # Mass of first and second stage in kg
+
+# Test rockets
+rocket3 = Rocket("Rocket 3", rocket3_thrust, rocket3_mass, nozzle=(340, 360), frame_material="Steel", fuel=90000, fins=4)
+rocket4 = Rocket("Rocket 4", rocket4_thrust, rocket4_mass, nozzle=(320, 350), frame_material="Aluminum", fuel=85000, fins=3)
+
+# Check if rockets can achieve orbit
+print("Rocket 3 can achieve orbit:", rocket3.can_achieve_orbit())
+print("Rocket 4 can achieve orbit:", rocket4.can_achieve_orbit())
 
