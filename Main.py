@@ -37,11 +37,11 @@ for rocket_data in rockets_data:
 rockets = []
 
 # Define ranges for randomized parameters
-thrust_range = (1e6, 2e6)  # Thrust in Newtons
-mass_range = (1e5, 2e5)  # Mass in kg
-isp_range = (200, 400)  # Specific impulse in seconds
+thrust_range = (0.8e6, 2.4e6)  # Thrust in Newtons
+mass_range = (1e5, 2.5e5)  # Mass in kg
+isp_range = (160, 420)  # Specific impulse in seconds
 material_options = ["Aluminum", "Steel", "Titanium", "Carbon Fiber"]
-fuel_range = (1e4, 2e4)  # Fuel mass in kg
+fuel_range = (0.8e4, 2.5e4)  # Fuel mass in kg
 fin_options = ["Small", "Medium", "Large"]
 
 # Create 20 instances of rockets with randomized parameters
@@ -58,7 +58,7 @@ for i in range(20):
     rockets.append(Rocket(name, thrust, (mass1, mass0), nozzle, frame_material, fuel, fins))
 
 # Simulating flight for each rocket
-#about 30-50% of these rockets with randomized parameters fail which is ideal
+#about 50% of these rockets with randomized parameters fail which is ideal
 for rocket in rockets:
     print(f"Rocket: {rocket.name}")
     print("\n")
