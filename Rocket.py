@@ -8,6 +8,7 @@ class Rocket:
         self.G = 6.6742e-11  # Gravitational constant in m^3/kg/s^2
         self.rPlanet = 6357000  # Radius of the planet in meters
         self.mPlanet = 5.972e24  # Mass of the planet in kg
+    
 
         # Rocket parameters
         self.name = name
@@ -78,8 +79,6 @@ class Rocket:
         thrustZ = thrustF * np.sin(theta)
         return np.array([thrustX, thrustZ]), mdot
 
-
-## I coudl try and add aerodynamic and heat forces again
     def derivatives(self, state, t):
         x, z, veloX, veloZ, mass = state
         r = np.sqrt(x**2 + z**2)
@@ -90,7 +89,30 @@ class Rocket:
             gravityF = np.array([0, 0])
         
         thrustF, mdot = self.propulsion(t)
-        forces = gravityF + thrustF
+        velocity = np.sqrt(veloX ** 2 + veloZ ** 2)
+        if velocity > 0.0:
+            aeroF = -0.5 * self.Cd(velocity) * velocity**2
+            aeroF_x = aeroF * veloX / velocity
+            aeroF_z = aeroF * veloZ / velocity
+        else:
+            aeroF_x = 0.0
+            aeroF_z = 0.0
+        
+        # Accounting for fins
+        if self.fins > 0:
+            # Assuming fins generate lift normal to the rocket's longitudinal axis
+            # Fins create a lift force perpendicular to the rocket's longitudinal axis
+            lift_perpendicular = 0.5 * self.fins * self.Cd(velocity) * velocity**2
+            # Calculate angle of attack assuming fins are perpendicular to rocket's axis
+            angle_of_attack = np.arctan2(veloZ, veloX)
+            # Calculate lift forces
+            lift_x = lift_perpendicular * np.cos(angle_of_attack)
+            lift_z = lift_perpendicular * np.sin(angle_of_attack)
+        else:
+            lift_x = 0.0
+            lift_z = 0.0
+            
+        forces = gravityF + thrustF + np.array([aeroF_x + lift_x, aeroF_z + lift_z])
         zdot = veloZ
         xdot = veloX
         
@@ -102,8 +124,18 @@ class Rocket:
             ddot = np.array([0, 0])
             mdot = 0
         
+        # Heat generation and temperature change
+        heat_generated = self.heat_generation(state)
+        temperature_change = self.temperature_change(heat_generated, self.frame_material)
+        
+        # Update mass and temperature
+        mass -= mdot * (t - self.tMECO)
+        mass = max(mass, 0)  # Ensure mass is non-negative
+        mass += temperature_change  # Adjust mass based on temperature change
+        
         state_dot = np.array([xdot, zdot, ddot[0], ddot[1], mdot])
         return state_dot
+
     
     def simulate_flight(self):
         x0 = self.rPlanet

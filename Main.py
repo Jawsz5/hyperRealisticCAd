@@ -17,7 +17,6 @@ rockets_data = [
     {"name": "Electron", "thrust": 0.0285e6, "mass": [12500, 12500 + 1800], "nozzle": [303, 311], "frame_material": "Composite", "fuel": "RP-1/LOX", "fins": 0},
     {"name": "Starship", "thrust": 71e6, "mass": [1200000, 1200000 + 120000], "nozzle": [380, 380], "frame_material": "Stainless Steel", "fuel": "Liquid Methane/LOX", "fins": 0},
     {"name": "New Glenn", "thrust": 3.85e6, "mass": [3000000, 3000000 + 125000], "nozzle": [421, 462], "frame_material": "Composite", "fuel": "Liquid Hydrogen/LOX", "fins": 0},
-    {"name": "Delta II", "thrust": 890e3, "mass": [23000, 23000 + 2040], "nozzle": [275, 340], "frame_material": "Aluminum", "fuel": "RP-1/LOX", "fins": 3},
     {"name": "Falcon 1", "thrust": 420e3, "mass": [30600, 30600 + 470], "nozzle": [282, 348], "frame_material": "Aluminum", "fuel": "RP-1/LOX", "fins": 4},
     {"name": "Ariane 6", "thrust": 1900e3, "mass": [530000, 530000 + 17000], "nozzle": [457, 460], "frame_material": "Aluminum", "fuel": "H2/LOX", "fins": 0},
 
@@ -42,7 +41,7 @@ mass_range = (1e5, 2.5e5)  # Mass in kg
 isp_range = (160, 420)  # Specific impulse in seconds
 material_options = ["Aluminum", "Steel", "Titanium", "Carbon Fiber"]
 fuel_range = (0.8e4, 2.5e4)  # Fuel mass in kg
-fin_options = ["Small", "Medium", "Large"]
+fin_options = (0,10)
 
 # Create 20 instances of rockets with randomized parameters
 rockets = []
@@ -63,6 +62,8 @@ for rocket in rockets:
     print(f"Rocket: {rocket.name}")
     print("\n")
     print(rocket.can_achieve_orbit())
+
+
 
 
 
