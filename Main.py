@@ -62,34 +62,3 @@ for rocket in rockets:
     print(f"Rocket: {rocket.name}")
     print("\n")
     print(rocket.can_achieve_orbit())
-
-
-
-
-
-
-
-# Test the Rocket class with example rockets
-'''
-rocket1_thrust = 9000000  # Newtons of thrust
-rocket1_mass = (500000, 200000)  # Mass of first stage and rocket without fuel in kg
-rocket1 = Rocket("Rocket 1", rocket1_thrust, rocket1_mass, nozzle=(300, 320), frame_material="Aluminum", fuel=300000, fins=3)
-
-rocket2_thrust = 8000000  # Newtons of thrust
-rocket2_mass = (550000, 210000)  # Mass of first stage and rocket without fuel in kg
-rocket2 = Rocket("Rocket 2", rocket2_thrust, rocket2_mass, nozzle=(310, 330), frame_material="Steel", fuel=280000, fins=4)
-
-rocket3_thrust = 6000000  # Newtons of thrust
-rocket3_mass = (450000, 190000)  # Mass of first stage and rocket without fuel in kg
-rocket3 = Rocket("Rocket 3", rocket3_thrust, rocket3_mass, nozzle=(340, 360), frame_material="Titanium", fuel=250000, fins=4)
-
-rocket4_thrust = 750000  # Newtons of thrust
-rocket4_mass = (480000, 220000)  # Mass of first stage and rocket without fuel in kg
-rocket4 = Rocket("Rocket 4", rocket4_thrust, rocket4_mass, nozzle=(320, 350), frame_material="Carbon Fiber", fuel=27, fins=3)
-
-# Test if rockets can achieve orbit
-print("Rocket 1 can achieve orbit:", rocket1.can_achieve_orbit())
-print("Rocket 2 can achieve orbit:", rocket2.can_achieve_orbit())
-print("Rocket 3 can achieve orbit:", rocket3.can_achieve_orbit())
-print("Rocket 4 can achieve orbit:", rocket4.can_achieve_orbit())
-'''

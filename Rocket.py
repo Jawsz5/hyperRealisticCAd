@@ -12,7 +12,7 @@ class Rocket:
 
         # Rocket parameters
         self.name = name
-        self.max_thrust = thrust  # Newtons of thrust
+        self.thrust = thrust  # Newtons of thrust
         self.Isp1 = nozzle[0]  # Specific impulse of first stage in seconds
         self.Isp2 = nozzle[1]  # Specific impulse of second stage in seconds
         self.tMECO = 20.0  # Main Engine Cut Off time in seconds
@@ -64,7 +64,7 @@ class Rocket:
     def propulsion(self, t):
         if t < self.tMECO:
             theta = 10 * np.pi / 180
-            thrustF = self.max_thrust
+            thrustF = self.thrust
             ve = self.Isp1 * 9.81  # Exit velocity in m/s
             mdot = -thrustF / ve
         elif t < (self.tMECO + self.tSep1):
