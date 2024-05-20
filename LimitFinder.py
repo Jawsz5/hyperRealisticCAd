@@ -1,5 +1,8 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from matplotlib import animation
+import numpy as np
+
 
 # Create a directed graph
 G = nx.DiGraph()
@@ -69,3 +72,4 @@ nx.draw_networkx_labels(G, pos, font_size=12, font_weight="bold")
 plt.title("Rocket Components Network")
 plt.axis("off")
 plt.show()
+
